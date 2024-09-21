@@ -154,7 +154,7 @@ while True:
             gaze_direction = "UP"
         elif 1.3 <= gaze_ratio < 1.565:
             gaze_direction = "CENTER"
-        elif 1.7 <= gaze_ratio < 2.2:
+        elif 1.7 <= gaze_ratio < 2.5:
             gaze_direction = "DOWN"
         else:
             gaze_direction = "LEFT"
