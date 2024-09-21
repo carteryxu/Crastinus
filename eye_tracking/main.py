@@ -46,15 +46,15 @@ def get_gaze_ratio(eye_points, facial_landmarks):
     #Creating mask
     height, width = frame.shape[:2]
     mask = np.zeros((height, width), np.uint8)
-    cv2.polylines(mask, [left_eye_region], True, 255, 2)
-    cv2.fillPoly(mask, [left_eye_region], 255)
+    cv2.polylines(mask, [eye_region], True, 255, 2)
+    cv2.fillPoly(mask, [eye_region], 255)
     eye = cv2.bitwise_and(gray, gray, mask=mask)
 
     #Calculating the eye region (max and min x and y of landmark points)
-    min_x = np.min(left_eye_region[:, 0])
-    max_x = np.max(left_eye_region[:, 0])
-    min_y = np.min(left_eye_region[:, 1])
-    max_y = np.max(left_eye_region[:, 1])
+    min_x = np.min(eye_region[:, 0])
+    max_x = np.max(eye_region[:, 0])
+    min_y = np.min(eye_region[:, 1])
+    max_y = np.max(eye_region[:, 1])
 
 
     #Isolating just the eye region + thresholding the eye region (separating pupil and iris)
@@ -67,7 +67,12 @@ def get_gaze_ratio(eye_points, facial_landmarks):
     left_side_white = cv2.countNonZero(left_side_threshold)
     right_side_white = cv2.countNonZero(right_eye_threshold)
 
-    gaze_ratio = left_side_white / right_side_white
+    #Preventing division by zero - crashing
+    if right_side_white != 0:
+        gaze_ratio = left_side_white / right_side_white
+    else:
+        gaze_ratio = 0
+        
     return gaze_ratio
 
 
@@ -99,16 +104,10 @@ while True:
         cv2.putText(frame, "Gaze Ratio Left: " + str(gaze_ratio_left_eye), (50, 100), font, 2, (0, 0, 255), 2)
         cv2.putText(frame, "Gaze Ratio Right: " + str(gaze_ratio_right_eye), (50, 50), font, 2, (0, 0, 255), 2)
 
-
-        
-        
-
-
-
     #frame = cv2.flip(frame, 1)  ##Mirror the frame
 
     cv2.imshow('frame', frame)
-    key = cv2.waitKey(1000)
+    key = cv2.waitKey(1)
     if key == 27:
         break
 
