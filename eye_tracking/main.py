@@ -35,6 +35,41 @@ def get_blinking_ratio(eye_points, facial_landmarks):
     ratio = horizontal_length / vertical_length
     return ratio
 
+def get_gaze_ratio(eye_points, facial_landmarks):
+    eye_region = np.array([(facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y),
+                        (facial_landmarks.part(eye_points[1]).x, facial_landmarks.part(eye_points[1]).y),
+                        (facial_landmarks.part(eye_points[2]).x, facial_landmarks.part(eye_points[2]).y),
+                        (facial_landmarks.part(eye_points[3]).x, facial_landmarks.part(eye_points[3]).y),
+                        (facial_landmarks.part(eye_points[4]).x, facial_landmarks.part(eye_points[4]).y),
+                        (facial_landmarks.part(eye_points[5]).x, facial_landmarks.part(eye_points[5]).y)], np.int32)
+
+    #Creating mask
+    height, width = frame.shape[:2]
+    mask = np.zeros((height, width), np.uint8)
+    cv2.polylines(mask, [left_eye_region], True, 255, 2)
+    cv2.fillPoly(mask, [left_eye_region], 255)
+    eye = cv2.bitwise_and(gray, gray, mask=mask)
+
+    #Calculating the eye region (max and min x and y of landmark points)
+    min_x = np.min(left_eye_region[:, 0])
+    max_x = np.max(left_eye_region[:, 0])
+    min_y = np.min(left_eye_region[:, 1])
+    max_y = np.max(left_eye_region[:, 1])
+
+
+    #Isolating just the eye region + thresholding the eye region (separating pupil and iris)
+    gray_eye = eye[min_y: max_y, min_x: max_x]
+    _, threshold_eye = cv2.threshold(gray_eye, 70, 255, cv2.THRESH_BINARY)
+    height, width = threshold_eye.shape
+    left_side_threshold = threshold_eye[0: height, 0: int(width/2)]
+    right_eye_threshold = threshold_eye[0: height, int(width/2): width]
+    #Counting size of whites
+    left_side_white = cv2.countNonZero(left_side_threshold)
+    right_side_white = cv2.countNonZero(right_eye_threshold)
+
+    gaze_ratio = left_side_white / right_side_white
+    return gaze_ratio
+
 
 while True:
     _, frame = cap.read()
@@ -50,54 +85,20 @@ while True:
 
         #Detect blinking
         left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks)
-        right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47, 48], landmarks)
+        right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks)
         blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
 
         if blinking_ratio > 4.45:
             cv2.putText(frame, "BLINKING", (50, 150), font, 10, (0, 0, 255), 5)
 
         #Gaze detection
-        left_eye_region = np.array([(landmarks.part(36).x, landmarks.part(36).y),
-                        (landmarks.part(37).x, landmarks.part(37).y),
-                        (landmarks.part(38).x, landmarks.part(38).y),
-                        (landmarks.part(39).x, landmarks.part(39).y),
-                        (landmarks.part(40).x, landmarks.part(40).y),
-                        (landmarks.part(41).x, landmarks.part(41).y)], np.int32)
+        gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
+        gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks)
         
-        # right_eye_region = np.array([(landmarks.part(42).x, landmarks.part(42).y),
-        #                  (landmarks.part(43).x, landmarks.part(43).y),
-        #                  (landmarks.part(44).x, landmarks.part(44).y),
-        #                  (landmarks.part(45).x, landmarks.part(45).y),
-        #                  (landmarks.part(46).x, landmarks.part(46).y),
-        #                  (landmarks.part(47).x, landmarks.part(47).y)], np.int32)
-        # cv2.polylines(frame, [right_eye_region], True, (0, 0, 255), 2) #Tracing the eye
 
-        # cv2.polylines(frame, [left_eye_region], True, (0, 0, 255), 2) #Tracing the eye
+        cv2.putText(frame, "Gaze Ratio Left: " + str(gaze_ratio_left_eye), (50, 100), font, 2, (0, 0, 255), 2)
+        cv2.putText(frame, "Gaze Ratio Right: " + str(gaze_ratio_right_eye), (50, 50), font, 2, (0, 0, 255), 2)
 
-        #Creating mask
-        height, width = frame.shape[:2]
-        mask = np.zeros((height, width), np.uint8)
-        cv2.polylines(mask, [left_eye_region], True, 255, 2)
-        cv2.fillPoly(mask, [left_eye_region], 255)
-        left_eye = cv2.bitwise_and(gray, gray, mask=mask)
-
-        #Calculating the eye region (max and min x and y of landmark points)
-        min_x = np.min(left_eye_region[:, 0])
-        max_x = np.max(left_eye_region[:, 0])
-        min_y = np.min(left_eye_region[:, 1])
-        max_y = np.max(left_eye_region[:, 1])
-
-
-        #Isolating just the eye region + thresholding the eye region (separating pupil and iris)
-        gray_eye = left_eye[min_y: max_y, min_x: max_x]
-        _, threshold_eye = cv2.threshold(gray_eye, 70, 255, cv2.THRESH_BINARY)
-        #Putting gray eye onto mask
-        eye = cv2.resize(gray_eye, None, fx=5, fy=5)
-        threshold_eye = cv2.resize(threshold_eye, None, fx=5, fy=5)
-        
-        #cv2.imshow("Eye", eye)
-        cv2.imshow("Threshold", threshold_eye)
-        #cv2.imshow("Left Eye", left_eye)
 
         
         
@@ -107,7 +108,7 @@ while True:
     #frame = cv2.flip(frame, 1)  ##Mirror the frame
 
     cv2.imshow('frame', frame)
-    key = cv2.waitKey(1)
+    key = cv2.waitKey(1000)
     if key == 27:
         break
 
