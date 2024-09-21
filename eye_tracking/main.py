@@ -23,26 +23,6 @@ unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
 #Load camera
 cap = cv2.VideoCapture(0)
 
-# def midpoint(p1, p2):
-#     return int((p1.x + p2.x)/2), int((p1.y + p2.y)/2)
-
-# def get_blinking_ratio(eye_points, facial_landmarks):
-#     left_point = (facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y)
-#     right_point = (facial_landmarks.part(eye_points[3]).x, facial_landmarks.part(eye_points[3]).y)
-#     center_top = midpoint(facial_landmarks.part(eye_points[1]), facial_landmarks.part(eye_points[2]))
-#     center_bot = midpoint(facial_landmarks.part(eye_points[5]), facial_landmarks.part(eye_points[4]))
-
-#     # Drawing horizontal and vertical line
-#     # cv2.line(frame, left_point, right_point, (0, 255, 0), 2)
-#     # cv2.line(frame, center_top, center_bot, (0, 255, 0), 2)
-
-#     # Calculating line ratios
-#     vertical_length = hypot((center_top[0] - center_bot[0]), (center_top[1] - center_bot[1]))
-#     horizontal_length = hypot((left_point[0] - right_point[0]), (left_point[1] - right_point[1]))
-    
-#     ratio = horizontal_length / vertical_length
-#     return ratio
-
 def calibrate():
     calibration_points = [(100,00), (400, 100), (700, 100),
                           (100, 300), (400, 300), (700, 300),
@@ -174,7 +154,7 @@ while True:
             gaze_direction = "UP"
         elif 1.3 <= gaze_ratio < 1.565:
             gaze_direction = "CENTER"
-        elif 1.7 <= gaze_ratio < 2.5:
+        elif 1.7 <= gaze_ratio < 2.2:
             gaze_direction = "DOWN"
         else:
             gaze_direction = "LEFT"
