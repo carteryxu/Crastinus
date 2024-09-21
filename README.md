@@ -1,2 +1,2 @@
 # Crastinus
-A focus app.
+A focus program.
