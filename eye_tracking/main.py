@@ -58,12 +58,20 @@ while True:
 
         #Gaze detection
         left_eye_region = np.array([(landmarks.part(36).x, landmarks.part(36).y),
-                                    (landmarks.part(37).x, landmarks.part(37).y),
-                                    (landmarks.part(38).x, landmarks.part(38).y),
-                                    (landmarks.part(39).x, landmarks.part(39).y),
-                                    (landmarks.part(40).x, landmarks.part(40).y),
-                                    (landmarks.part(41).x, landmarks.part(41).y)], np.int32)
+                        (landmarks.part(37).x, landmarks.part(37).y),
+                        (landmarks.part(38).x, landmarks.part(38).y),
+                        (landmarks.part(39).x, landmarks.part(39).y),
+                        (landmarks.part(40).x, landmarks.part(40).y),
+                        (landmarks.part(41).x, landmarks.part(41).y)], np.int32)
         cv2.polylines(frame, [left_eye_region], True, (0, 0, 255), 2)
+
+        right_eye_region = np.array([(landmarks.part(42).x, landmarks.part(42).y),
+                         (landmarks.part(43).x, landmarks.part(43).y),
+                         (landmarks.part(44).x, landmarks.part(44).y),
+                         (landmarks.part(45).x, landmarks.part(45).y),
+                         (landmarks.part(46).x, landmarks.part(46).y),
+                         (landmarks.part(47).x, landmarks.part(47).y)], np.int32)
+        cv2.polylines(frame, [right_eye_region], True, (0, 0, 255), 2)
         
 
 
