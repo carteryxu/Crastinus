@@ -1,8 +1,11 @@
 import cv2
+import cv2.aruco
 import numpy as np
 import dlib
 from math import hypot, sqrt
+import pygame
 import os
+import time
 
 font = cv2.FONT_HERSHEY_PLAIN
 # Load the detector
@@ -11,6 +14,11 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 predictor_path = os.path.join(current_dir, "shape_predictor_68_face_landmarks.dat")
 predictor = dlib.shape_predictor(predictor_path)
 
+#Pygame + sound + image setup
+pygame.init()
+pygame.mixer.init()
+unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
+unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
 
 #Load camera
 cap = cv2.VideoCapture(0)
@@ -34,6 +42,54 @@ cap = cv2.VideoCapture(0)
     
 #     ratio = horizontal_length / vertical_length
 #     return ratio
+
+def calibrate():
+    calibration_points = [(100,00), (400, 100), (700, 100),
+                          (100, 300), (400, 300), (700, 300),
+                          (100, 500), (400, 500), (700, 500)]
+    gaze_ratios = []
+
+    for point in calibration_points:
+        frame = np.zeros((600, 800, 3), np.uint8)
+        cv2.circle(frame, point, 10, (0, 255, 0), -1)
+        cv2.imshow('Calibration', frame)
+        cv2.waitKey(1000)
+
+        start_time = time.time()
+        point_gaze_ratios = []
+        while time.time() - start_time < 2.0:
+            _, frame = cap.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = detector(gray)
+            for face in faces:
+                landmarks = predictor(gray, face)
+                gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
+                gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks)
+                gaze_ratio = (gaze_ratio_left_eye + gaze_ratio_right_eye) / 2
+                point_gaze_ratios.append(gaze_ratio)
+        
+        if point_gaze_ratios:
+            gaze_ratios.append(np.mean(point_gaze_ratios))
+    cv2.destroyWindow('Calibration')
+
+    if len(gaze_ratios) == len(calibration_points):
+        left_threshold = np.mean(gaze_ratios[0:3])
+        center_threshold = np.mean(gaze_ratios[1:3])
+        right_threshold = np.mean(gaze_ratios[2:3])
+        up_threshold = np.mean(gaze_ratios[:3])
+        down_threshold = np.mean(gaze_ratios[6:])
+
+        return {
+            'left': left_threshold,
+            'center': center_threshold,
+            'right': right_threshold,
+            'up': up_threshold,
+            'down': down_threshold
+        }
+    else:
+        print("Calibration failed, reverting to default values.")
+        return None
+
 
 def get_gaze_ratio(eye_points, facial_landmarks):
     eye_region = np.array([(facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y),
@@ -75,6 +131,17 @@ def get_gaze_ratio(eye_points, facial_landmarks):
 
     return gaze_ratio
 
+#Defining allowed gaze directions
+allowed_gaze_direction = ["CENTER", "DOWN"]
+
+def is_gaze_allowed(gaze_direction):
+    return gaze_direction in allowed_gaze_direction
+
+#Allowed time threshold
+TIME_THRESHOLD = 1.0
+
+start_time = None
+SOUND_INTERVAL = 1.0
 
 while True:
     _, frame = cap.read()
@@ -102,17 +169,34 @@ while True:
         gaze_ratio = (gaze_ratio_left_eye + gaze_ratio_right_eye) / 2
 
         if gaze_ratio < 1:
-            cv2.putText(frame, "RIGHT", (50, 100), font, 4, (0, 255, 0), 3)
+            gaze_direction = "RIGHT"
         elif 1 <= gaze_ratio < 1.3:
-            cv2.putText(frame, "UP", (50, 100), font, 4, (0, 255, 0), 3)
+            gaze_direction = "UP"
         elif 1.3 <= gaze_ratio < 1.565:
-            cv2.putText(frame, "CENTER", (50, 100), font, 4, (0, 255, 0), 3)
+            gaze_direction = "CENTER"
         elif 1.7 <= gaze_ratio < 2.5:
-            cv2.putText(frame, "DOWN", (50, 100), font, 4, (0, 255, 0), 3)
+            gaze_direction = "DOWN"
         else:
-            cv2.putText(frame, "LEFT", (50, 100), font, 4, (0, 255, 0), 3)
+            gaze_direction = "LEFT"
         
         #cv2.putText(frame, "Gaze Ratio : " + str(gaze_ratio), (50, 100), font, 2, (0, 0, 255), 2)
+        cv2.putText(frame, "Gaze Direction : " + gaze_direction, (50, 150), font, 4, (0, 255, 0), 3)
+
+        #Gaze check
+        if not is_gaze_allowed(gaze_direction):
+            current_time = time.time()
+            if start_time is None:
+                start_time = current_time
+            elif time.time() - start_time >= TIME_THRESHOLD:
+                if current_time - start_time >= SOUND_INTERVAL:
+                    pygame.mixer.Sound.play(unpleasant_sound)
+                    start_time = current_time
+                    cv2.imshow('Unpleasant Image', unpleasant_image)
+        else:
+            start_time = None
+            pygame.mixer.Sound.stop(unpleasant_sound)
+            cv2.destroyWindow('Unpleasant Image')
+
 
     #frame = cv2.flip(frame, 1)  ##Mirror the frame
 
