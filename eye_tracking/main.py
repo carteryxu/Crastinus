@@ -72,7 +72,7 @@ def get_gaze_ratio(eye_points, facial_landmarks):
         gaze_ratio = left_side_white / right_side_white
     else:
         gaze_ratio = 0
-        
+
     return gaze_ratio
 
 
@@ -99,10 +99,20 @@ while True:
         #Gaze detection
         gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
         gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks)
-        
+        gaze_ratio = (gaze_ratio_left_eye + gaze_ratio_right_eye) / 2
 
-        cv2.putText(frame, "Gaze Ratio Left: " + str(gaze_ratio_left_eye), (50, 100), font, 2, (0, 0, 255), 2)
-        cv2.putText(frame, "Gaze Ratio Right: " + str(gaze_ratio_right_eye), (50, 50), font, 2, (0, 0, 255), 2)
+        if gaze_ratio < 1:
+            cv2.putText(frame, "RIGHT", (50, 100), font, 4, (0, 255, 0), 3)
+        elif 1 <= gaze_ratio < 1.3:
+            cv2.putText(frame, "UP", (50, 100), font, 4, (0, 255, 0), 3)
+        elif 1.3 <= gaze_ratio < 1.565:
+            cv2.putText(frame, "CENTER", (50, 100), font, 4, (0, 255, 0), 3)
+        elif 1.7 <= gaze_ratio < 2.5:
+            cv2.putText(frame, "DOWN", (50, 100), font, 4, (0, 255, 0), 3)
+        else:
+            cv2.putText(frame, "LEFT", (50, 100), font, 4, (0, 255, 0), 3)
+        
+        #cv2.putText(frame, "Gaze Ratio : " + str(gaze_ratio), (50, 100), font, 2, (0, 0, 255), 2)
 
     #frame = cv2.flip(frame, 1)  ##Mirror the frame
 
