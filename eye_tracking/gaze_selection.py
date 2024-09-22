@@ -51,7 +51,7 @@ class GazeSelection(QWidget):
         self.label.setFont(QFont("Rajdhani", 24, QFont.Bold))
         self.label.setWordWrap(True)
         self.label.setMinimumHeight(100)
-        self.label.setStyleSheet("QLabel { color: #fffff; padding: 10px; }")
+        self.label.setStyleSheet("QLabel { color: #ffffff; padding: 10px; }")
         layout.addWidget(self.label, alignment=Qt.AlignCenter)
 
         # Checkboxes with custom font

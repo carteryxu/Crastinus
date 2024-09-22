@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QApplication, QDesktopWidget
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, pyqtSignal
 from PyQt5.QtGui import QIcon, QColor, QPalette, QPainter, QBrush, QFont
 
 class DotBackground(QWidget):
@@ -29,9 +29,14 @@ class DotBackground(QWidget):
                 painter.drawEllipse(QPoint(x, y), dot_size // 2, dot_size // 2)
 
 class StartPage(QWidget):
+    focus_selected = pyqtSignal()
+    close_requested = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.initUI()
+
+    focus_selected = pyqtSignal()
 
     def initUI(self):
         self.setWindowTitle('Crastinus Start')
@@ -105,14 +110,12 @@ class StartPage(QWidget):
         super().resizeEvent(event)
 
     def pressed(self):
+        self.close_requested.emit()
         self.close()
 
 def start():
     app = QApplication(sys.argv)
     window = StartPage()
-    window.show()
-    app.aboutToQuit.connect(app.quit)  # Quit the entire program when the start page is closed
-    sys.exit(app.exec_())
-    window = StartPage()
+    window.close_requested.connect(app.quit)
     window.show()
     app.exec_()
