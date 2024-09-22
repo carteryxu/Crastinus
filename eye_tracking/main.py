@@ -128,13 +128,9 @@ unpleasant_image, unpleasant_sound = select_files()
 #Setting file paths + defaults
 if unpleasant_sound:
     unpleasant_sound = pygame.mixer.Sound(unpleasant_sound)
-else:
-    unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
-    
+
 if unpleasant_image:
     unpleasant_image = cv2.imread(unpleasant_image)
-else:
-    unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
 
 while True:
     _, frame = cap.read()
@@ -161,7 +157,7 @@ while True:
             gaze_direction = "LEFT"
         
         #cv2.putText(frame, "Gaze Ratio : " + str(gaze_ratio), (50, 100), font, 2, (0, 0, 255), 2)
-        cv2.putText(frame, "Gaze Direction : " + gaze_direction, (50, 150), font, 4, (0, 255, 0), 3)
+        cv2.putText(frame, "FOCUS Direction : " + gaze_direction, (50, 150), font, 4, (222, 89, 255), 3)
 
         #Gaze check
         if not is_gaze_allowed(gaze_direction):
