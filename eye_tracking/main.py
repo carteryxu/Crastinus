@@ -19,8 +19,11 @@ predictor = dlib.shape_predictor(predictor_path)
 #Pygame + sound + image setup
 pygame.init()
 pygame.mixer.init()
-unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
-unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
+default_unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
+default_unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
+
+custom_image_path = default_unpleasant_image
+custom_sound_path = default_unpleasant_sound
 
 #Load camera
 cap = cv2.VideoCapture(0)
@@ -113,11 +116,11 @@ def get_gaze_ratio(eye_points, facial_landmarks):
 
     return gaze_ratio
 
-#Defining allowed gaze directions
-allowed_gaze_direction = select_allowed_gaze_directions()
-
 def is_gaze_allowed(gaze_direction):
     return gaze_direction in allowed_gaze_direction
+
+#Defining allowed gaze directions
+allowed_gaze_direction = select_allowed_gaze_directions()
 
 #Allowed time threshold
 TIME_THRESHOLD = 1.0
@@ -171,13 +174,13 @@ while True:
                 start_time = current_time
             elif time.time() - start_time >= TIME_THRESHOLD:
                 if current_time - start_time >= SOUND_INTERVAL:
-                    pygame.mixer.Sound.play(unpleasant_sound)
+                    pygame.mixer.Sound.play(default_unpleasant_sound)
                     start_time = current_time
-                    cv2.imshow('Unpleasant Image', unpleasant_image)
+                    cv2.imshow('FOCUS', default_unpleasant_image)
         else:
             start_time = None
-            pygame.mixer.Sound.stop(unpleasant_sound)
-            cv2.destroyWindow('Unpleasant Image')
+            pygame.mixer.Sound.stop(default_unpleasant_sound)
+            cv2.destroyWindow('FOCUS')
 
 
     #frame = cv2.flip(frame, 1)  ##Mirror the frame

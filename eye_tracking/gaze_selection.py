@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QFileDialog
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 
@@ -10,7 +10,7 @@ class GazeSelection(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Select Allowed Gaze Directions")
+        self.setWindowTitle("Select Gaze Preferences")
         self.setFixedSize(600, 400)
 
         layout = QVBoxLayout()
@@ -18,7 +18,7 @@ class GazeSelection(QWidget):
         layout.setSpacing(15)
 
         # Label with custom font
-        self.label = QLabel("Select Session Allowed Gaze Directions:")
+        self.label = QLabel("Select Session Gaze Preferences:")
         self.label.setFont(QFont("Segoe UI", 24, QFont.Bold))
         self.label.setWordWrap(True)
         self.label.setMinimumHeight(100)

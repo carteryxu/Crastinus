@@ -1,0 +1,55 @@
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QFileDialog
+from PyQt5.QtCore import Qt
+
+class FileUpload(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.custom_image_path = None
+        self.custom_sound_path = None
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle('File Upload')
+        self.setGeometry(100, 100, 400, 200)
+
+        layout = QVBoxLayout()
+
+        # Upload buttons
+        self.upload_image_button = QPushButton("Upload Custom Image")
+        self.upload_image_button.clicked.connect(self.upload_image)
+        layout.addWidget(self.upload_image_button, alignment=Qt.AlignCenter)
+
+        self.upload_sound_button = QPushButton("Upload Custom Sound")
+        self.upload_sound_button.clicked.connect(self.upload_sound)
+        layout.addWidget(self.upload_sound_button, alignment=Qt.AlignCenter)
+
+        self.setLayout(layout)
+
+    def upload_image(self):
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getOpenFileName("Upload Image", "", "Image Files (*.png *.jpg *.jpeg)", options=options)
+        if file_path:
+            self.custom_image_path = file_path
+            return file_path
+        
+    def upload_sound(self):
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getOpenFileName("Upload Sound", "", "Sound Files (*.wav *.mp3)", options=options)
+        if file_path:
+            self.custom_sound_path = file_path
+            return file_path
+        
+def get_image():
+    app = QApplication(sys.argv)
+    window = FileUpload()
+    window.show()
+    app.exec_()
+    return window.upload_image()
+
+def get_sound():
+    app = QApplication(sys.argv)
+    window = FileUpload()
+    window.show()
+    app.exec_()
+    return window.upload_sound()
