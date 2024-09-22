@@ -4,7 +4,9 @@ import numpy as np
 import dlib
 from math import hypot, sqrt
 import pygame
+import sys
 import os
+from gaze_selection import select_allowed_gaze_directions
 import time
 
 font = cv2.FONT_HERSHEY_PLAIN
@@ -112,7 +114,7 @@ def get_gaze_ratio(eye_points, facial_landmarks):
     return gaze_ratio
 
 #Defining allowed gaze directions
-allowed_gaze_direction = ["CENTER", "DOWN"]
+allowed_gaze_direction = select_allowed_gaze_directions()
 
 def is_gaze_allowed(gaze_direction):
     return gaze_direction in allowed_gaze_direction

@@ -56,9 +56,9 @@ class GazeSelection(QWidget):
     def get_selected_directions(self):
         return self.selected_directions
     
-    def select_allowed_gaze_directions():
-        app = QApplication(sys.argv)
-        window = GazeSelection()
-        window.show()
-        app.exec_()
-        return window.get_selected_directions()
+def select_allowed_gaze_directions():
+    app = QApplication(sys.argv)
+    window = GazeSelection()
+    window.show()
+    app.exec_()
+    return window.get_selected_directions()
