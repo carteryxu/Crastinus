@@ -7,6 +7,7 @@ import pygame
 import sys
 import os
 from gaze_selection import select_allowed_gaze_directions
+from file_selection import get_image, get_sound
 import time
 
 font = cv2.FONT_HERSHEY_PLAIN
@@ -19,11 +20,6 @@ predictor = dlib.shape_predictor(predictor_path)
 #Pygame + sound + image setup
 pygame.init()
 pygame.mixer.init()
-default_unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
-default_unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
-
-custom_image_path = default_unpleasant_image
-custom_sound_path = default_unpleasant_sound
 
 #Load camera
 cap = cv2.VideoCapture(0)
@@ -127,6 +123,8 @@ TIME_THRESHOLD = 1.0
 
 start_time = None
 SOUND_INTERVAL = 1.0
+unpleasant_sound = get_sound() or pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
+unpleasant_image = get_image() or cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
 
 while True:
     _, frame = cap.read()
@@ -174,12 +172,12 @@ while True:
                 start_time = current_time
             elif time.time() - start_time >= TIME_THRESHOLD:
                 if current_time - start_time >= SOUND_INTERVAL:
-                    pygame.mixer.Sound.play(default_unpleasant_sound)
+                    pygame.mixer.Sound.play(unpleasant_sound)
                     start_time = current_time
-                    cv2.imshow('FOCUS', default_unpleasant_image)
+                    cv2.imshow('FOCUS', unpleasant_image)
         else:
             start_time = None
-            pygame.mixer.Sound.stop(default_unpleasant_sound)
+            pygame.mixer.Sound.stop(unpleasant_sound)
             cv2.destroyWindow('FOCUS')
 
 
