@@ -36,7 +36,7 @@ class GazeSelection(QWidget):
 
     def initUI(self):
         self.setWindowTitle("Select Gaze Preferences")
-        self.setFixedSize(600, 400)
+        self.setGeometry(300, 150, 1000, 600)
 
         # Create and set up the background
         self.background = DotBackground(self)

@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel
 from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtGui import QIcon, QColor, QPalette, QPainter, QBrush
 
 class DotBackground(QWidget):
@@ -36,10 +37,10 @@ class FileUpload(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('Cyberpunk File Upload')
-        self.setGeometry(100, 100, 600, 400)
+        screen = QDesktopWidget().screenGeometry()
+        self.setGeometry(300, 150, 900, 600)
         
-        # Set the cyberpunk theme palette
+        # Set theme palette
         palette = QPalette()
         palette.setColor(QPalette.Window, QColor(10, 10, 15))
         palette.setColor(QPalette.WindowText, QColor(230, 0, 255))
