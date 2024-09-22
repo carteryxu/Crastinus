@@ -83,9 +83,13 @@ unpleasant_image, unpleasant_sound = select_files()
 #Setting file paths + defaults
 if unpleasant_sound:
     unpleasant_sound = pygame.mixer.Sound(unpleasant_sound)
+else:
+    unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
 
 if unpleasant_image:
     unpleasant_image = cv2.imread(unpleasant_image)
+else:
+    unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
 
 while True:
     _, frame = cap.read()
