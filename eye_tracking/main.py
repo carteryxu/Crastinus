@@ -27,54 +27,6 @@ start()
 #Load camera
 cap = cv2.VideoCapture(0)
 
-def calibrate():
-    calibration_points = [(100,00), (400, 100), (700, 100),
-                          (100, 300), (400, 300), (700, 300),
-                          (100, 500), (400, 500), (700, 500)]
-    gaze_ratios = []
-
-    for point in calibration_points:
-        frame = np.zeros((600, 800, 3), np.uint8)
-        cv2.circle(frame, point, 10, (0, 255, 0), -1)
-        cv2.imshow('Calibration', frame)
-        cv2.waitKey(1000)
-
-        start_time = time.time()
-        point_gaze_ratios = []
-        while time.time() - start_time < 2.0:
-            _, frame = cap.read()
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = detector(gray)
-            for face in faces:
-                landmarks = predictor(gray, face)
-                gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
-                gaze_ratio_right_eye = get_gaze_ratio([42, 43, 44, 45, 46, 47], landmarks)
-                gaze_ratio = (gaze_ratio_left_eye + gaze_ratio_right_eye) / 2
-                point_gaze_ratios.append(gaze_ratio)
-        
-        if point_gaze_ratios:
-            gaze_ratios.append(np.mean(point_gaze_ratios))
-    cv2.destroyWindow('Calibration')
-
-    if len(gaze_ratios) == len(calibration_points):
-        left_threshold = np.mean(gaze_ratios[0:3])
-        center_threshold = np.mean(gaze_ratios[1:3])
-        right_threshold = np.mean(gaze_ratios[2:3])
-        up_threshold = np.mean(gaze_ratios[:3])
-        down_threshold = np.mean(gaze_ratios[6:])
-
-        return {
-            'left': left_threshold,
-            'center': center_threshold,
-            'right': right_threshold,
-            'up': up_threshold,
-            'down': down_threshold
-        }
-    else:
-        print("Calibration failed, reverting to default values.")
-        return None
-
-
 def get_gaze_ratio(eye_points, facial_landmarks):
     eye_region = np.array([(facial_landmarks.part(eye_points[0]).x, facial_landmarks.part(eye_points[0]).y),
                         (facial_landmarks.part(eye_points[1]).x, facial_landmarks.part(eye_points[1]).y),
