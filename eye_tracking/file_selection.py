@@ -38,8 +38,7 @@ class FileUpload(QWidget):
                 background-color: #4cae4c;
             }
         """)
-        self.submit_button.clicked.connect(self.submit_image)
-        self.submit_button.clicked.connect(self.submit_sound)
+        self.submit_button.clicked.connect(self.submit_files)
         layout.addWidget(self.submit_button, alignment=Qt.AlignCenter)
 
         self.setLayout(layout)
@@ -60,29 +59,18 @@ class FileUpload(QWidget):
             # Update button text to the name of the uploaded file
             self.upload_sound_button.setText(file_path.split('/')[-1])  # Get the filename
     
-    def submit_image(self):
+    def submit_files(self):
         self.uploaded_image = self.custom_image_path
-
-    def submit_sound(self):
         self.uploaded_sound = self.custom_sound_path
         self.close()
-    
-    def get_image(self):
-        return self.uploaded_image
-    
-    def get_sound(self):
-        return self.uploaded_sound
-        
-def get_image():
-    app = QApplication(sys.argv)
-    window = FileUpload()
-    window.show()
-    app.exec_()
-    return window.get_image()
 
-def get_sound():
+    def get_files(self):
+        return self.uploaded_image, self.uploaded_sound
+        
+def select_files():
     app = QApplication(sys.argv)
     window = FileUpload()
     window.show()
     app.exec_()
-    return window.get_sound()
+    return window.get_files()
+

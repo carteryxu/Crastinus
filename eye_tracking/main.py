@@ -7,7 +7,7 @@ import pygame
 import sys
 import os
 from gaze_selection import select_allowed_gaze_directions
-from file_selection import get_image, get_sound
+from file_selection import select_files
 import time
 
 font = cv2.FONT_HERSHEY_PLAIN
