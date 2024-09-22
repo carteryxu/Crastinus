@@ -123,8 +123,18 @@ TIME_THRESHOLD = 1.0
 
 start_time = None
 SOUND_INTERVAL = 1.0
-unpleasant_sound = get_sound() or pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
-unpleasant_image = get_image() or cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
+unpleasant_image, unpleasant_sound = select_files()
+
+#Setting file paths + defaults
+if unpleasant_sound:
+    unpleasant_sound = pygame.mixer.Sound(unpleasant_sound)
+else:
+    unpleasant_sound = pygame.mixer.Sound(os.path.join(current_dir, "metal pipe falling sound effect.wav"))
+    
+if unpleasant_image:
+    unpleasant_image = cv2.imread(unpleasant_image)
+else:
+    unpleasant_image = cv2.imread(os.path.join(current_dir, "meekmillfocus.jpg"))
 
 while True:
     _, frame = cap.read()
@@ -132,19 +142,7 @@ while True:
 
     faces = detector(gray)
     for face in faces:
-        #x, y = face.left(), face.top()
-        #x1, y1 = face.right(), face.bottom()
-        #cv2.rectangle(frame, (x, y), (x1, y1), (0, 255, 0), 2)
-
         landmarks = predictor(gray, face)
-
-        #Detect blinking
-        # left_eye_ratio = get_blinking_ratio([36, 37, 38, 39, 40, 41], landmarks)
-        # right_eye_ratio = get_blinking_ratio([42, 43, 44, 45, 46, 47], landmarks)
-        # blinking_ratio = (left_eye_ratio + right_eye_ratio) / 2
-
-        # if blinking_ratio > 4.45:
-        #     cv2.putText(frame, "BLINKING", (50, 150), font, 10, (0, 0, 255), 5)
 
         #Gaze detection
         gaze_ratio_left_eye = get_gaze_ratio([36, 37, 38, 39, 40, 41], landmarks)
