@@ -38,6 +38,7 @@ Crastinus is an innovative focus tool that keeps you focused. Utilizing computer
    - Default stimuli downloads:
    - https://github.com/carteryxu/Crastinus/blob/main/eye_tracking/meekmillfocus.jpg
    - https://github.com/carteryxu/Crastinus/blob/main/eye_tracking/metal%20pipe%20falling%20sound%20effect.wav
+   - Place in default_files folder
 
 ### Usage
 ---
