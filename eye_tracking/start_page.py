@@ -29,9 +29,6 @@ class DotBackground(QWidget):
                 painter.drawEllipse(QPoint(x, y), dot_size // 2, dot_size // 2)
 
 class StartPage(QWidget):
-    focus_selected = pyqtSignal()
-    close_requested = pyqtSignal()
-
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -110,7 +107,6 @@ class StartPage(QWidget):
         super().resizeEvent(event)
 
     def pressed(self):
-        self.close_requested.emit()
         self.close()
 
 def start():
