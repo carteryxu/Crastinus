@@ -1,8 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QPushButton, QLabel, QFileDialog
+from PyQt5.QtGui import QIcon, QFont, QPainter, QColor, QBrush
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QDesktopWidget
-from PyQt5.QtGui import QIcon, QColor, QPalette, QPainter, QBrush
 
 class DotBackground(QWidget):
     def __init__(self, parent=None):
@@ -29,139 +28,130 @@ class DotBackground(QWidget):
                 painter.setBrush(QBrush(dot_color))
                 painter.drawEllipse(QPoint(x, y), dot_size // 2, dot_size // 2)
 
-class FileUpload(QWidget):
+class GazeSelection(QWidget):
     def __init__(self):
         super().__init__()
-        self.uploaded_image_path = None
-        self.uploaded_sound_path = None
+        self.selected_directions = []
         self.initUI()
 
     def initUI(self):
-        screen = QDesktopWidget().screenGeometry()
-        self.setGeometry(300, 150, 900, 600)
-        
-        # Set theme palette
-        palette = QPalette()
-        palette.setColor(QPalette.Window, QColor(10, 10, 15))
-        palette.setColor(QPalette.WindowText, QColor(230, 0, 255))
-        palette.setColor(QPalette.Base, QColor(20, 20, 30))
-        palette.setColor(QPalette.AlternateBase, QColor(40, 40, 60))
-        palette.setColor(QPalette.ToolTipBase, QColor(230, 0, 255))
-        palette.setColor(QPalette.ToolTipText, Qt.white)
-        palette.setColor(QPalette.Text, Qt.white)
-        palette.setColor(QPalette.Button, QColor(60, 20, 80))
-        palette.setColor(QPalette.ButtonText, Qt.white)
-        palette.setColor(QPalette.BrightText, QColor(255, 0, 100))
-        palette.setColor(QPalette.Link, QColor(42, 130, 218))
-        palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-        palette.setColor(QPalette.HighlightedText, Qt.black)
-        self.setPalette(palette)
-
-        self.setStyleSheet("""
-            QWidget {
-                background-color: transparent;
-                color: #ffffff;
-                font-family: 'Rajdhani', 'Roboto', sans-serif;
-            }
-            QPushButton {
-                background-color: #3c1450;
-                color: #e600ff;
-                font-size: 16px;
-                padding: 15px;
-                border-radius: 8px;
-                border: 2px solid #8a2be2;
-                min-width: 200px;
-            }
-            QPushButton:hover {
-                background-color: #4b0082;
-                border: 2px solid #e600ff;
-            }
-            QLabel {
-                font-size: 14px;
-                color: #b19cd9;
-            }
-        """)
+        self.setWindowTitle("Select Gaze Preferences")
+        self.setGeometry(300, 150, 1000, 600)
 
         # Create and set up the background
         self.background = DotBackground(self)
+        self.background.resize(self.size())
 
         layout = QVBoxLayout()
-        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
 
-        title = QLabel("Upload Negative Stimulus Files")
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 24px; color: #ffffff; margin-bottom: 30px; font-weight: bold;")
-        layout.addWidget(title)
+        # Label with custom font
+        self.label = QLabel("Select Allowed Gaze Directions:")
+        self.label.setFont(QFont("Rajdhani", 24, QFont.Bold))
+        self.label.setWordWrap(True)
+        self.label.setMinimumHeight(100)
+        self.label.setStyleSheet("QLabel { color: #fffff; padding: 10px; }")
+        layout.addWidget(self.label, alignment=Qt.AlignCenter)
 
-        self.upload_image_button = QPushButton("Upload Image")
-        self.upload_image_button.setIcon(QIcon.fromTheme("image-x-generic"))
-        self.upload_image_button.clicked.connect(self.upload_image)
-        layout.addWidget(self.upload_image_button, alignment=Qt.AlignCenter)
+        # Checkboxes with custom font
+        checkbox_font = QFont("Rajdhani", 18)
+        checkbox_style = """
+            QCheckBox {
+                color: #b19cd9;
+                padding: 5px;
+            }
+            QCheckBox::indicator {
+                width: 20px;
+                height: 20px;
+            }
+            QCheckBox::indicator:unchecked {
+                border: 2px solid #8a2be2;
+                background-color: #0a0a0f;
+            }
+            QCheckBox::indicator:checked {
+                border: 2px solid #e600ff;
+                background-color: #8a2be2;
+            }
+        """
 
-        self.image_label = QLabel("No image selected")
-        self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setStyleSheet("color: #b19cd9; margin-bottom: 10px;")
-        layout.addWidget(self.image_label)
+        self.center_checkbox = QCheckBox("CENTER")
+        self.center_checkbox.setChecked(True)
+        self.center_checkbox.setFont(checkbox_font)
+        self.center_checkbox.setStyleSheet(checkbox_style)
+        layout.addWidget(self.center_checkbox)
 
-        self.upload_sound_button = QPushButton("Upload Sound")
-        self.upload_sound_button.setIcon(QIcon.fromTheme("audio-x-generic"))
-        self.upload_sound_button.clicked.connect(self.upload_sound)
-        layout.addWidget(self.upload_sound_button, alignment=Qt.AlignCenter)
+        self.up_checkbox = QCheckBox("UP")
+        self.up_checkbox.setFont(checkbox_font)
+        self.up_checkbox.setStyleSheet(checkbox_style)
+        layout.addWidget(self.up_checkbox)
 
-        self.sound_label = QLabel("No sound selected")
-        self.sound_label.setAlignment(Qt.AlignCenter)
-        self.sound_label.setStyleSheet("color: #b19cd9; margin-bottom: 10px;")
-        layout.addWidget(self.sound_label)
+        self.down_checkbox = QCheckBox("DOWN")
+        self.down_checkbox.setFont(checkbox_font)
+        self.down_checkbox.setStyleSheet(checkbox_style)
+        layout.addWidget(self.down_checkbox)
 
+        self.left_checkbox = QCheckBox("LEFT")
+        self.left_checkbox.setFont(checkbox_font)
+        self.left_checkbox.setStyleSheet(checkbox_style)
+        layout.addWidget(self.left_checkbox)
+
+        self.right_checkbox = QCheckBox("RIGHT")
+        self.right_checkbox.setFont(checkbox_font)
+        self.right_checkbox.setStyleSheet(checkbox_style)
+        layout.addWidget(self.right_checkbox)
+
+        # Confirm button with stylesheet
         self.submit_button = QPushButton("Confirm")
         self.submit_button.setStyleSheet("""
             QPushButton {
                 background-color: #4b0082;
                 color: #ffffff;
+                font-family: 'Rajdhani';
+                font-size: 18px;
                 font-weight: bold;
+                padding: 10px;
+                border-radius: 5px;
                 border: 2px solid #e600ff;
-                margin-top: 20px;
             }
             QPushButton:hover {
                 background-color: #8a2be2;
             }
         """)
-        self.submit_button.clicked.connect(self.submit_files)
+        self.submit_button.clicked.connect(self.submit_directions)
         layout.addWidget(self.submit_button, alignment=Qt.AlignCenter)
 
         self.setLayout(layout)
+
+        # Set the widget background to transparent
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setStyleSheet("background-color: transparent;")
 
     def resizeEvent(self, event):
         self.background.resize(self.size())
         super().resizeEvent(event)
 
-    def upload_image(self):
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(self, "Upload Image", "", "Image Files (*.png *.jpg *.jpeg)", options=options)
-        if file_path:
-            self.custom_image_path = file_path
-            self.image_label.setText(f"Selected: {file_path.split('/')[-1]}")
-            self.image_label.setStyleSheet("color: #e600ff;")
+    def submit_directions(self):
+        self.selected_directions = []
+        if self.center_checkbox.isChecked():
+            self.selected_directions.append("CENTER")
+        if self.left_checkbox.isChecked():
+            self.selected_directions.append("LEFT")
+        if self.right_checkbox.isChecked():
+            self.selected_directions.append("RIGHT")
+        if self.up_checkbox.isChecked():
+            self.selected_directions.append("UP")
+        if self.down_checkbox.isChecked():
+            self.selected_directions.append("DOWN")
 
-    def upload_sound(self):
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(self, "Upload Sound", "", "Sound Files (*.wav *.mp3)", options=options)
-        if file_path:
-            self.custom_sound_path = file_path
-            self.sound_label.setText(f"Selected: {file_path.split('/')[-1]}")
-            self.sound_label.setStyleSheet("color: #e600ff;")
-    
-    def submit_files(self):
-        self.uploaded_image = self.custom_image_path if hasattr(self, 'custom_image_path') else None
-        self.uploaded_sound = self.custom_sound_path if hasattr(self, 'custom_sound_path') else None
         self.close()
 
-    def get_files(self):
-        return self.uploaded_image, self.uploaded_sound
-        
-def select_files():
+    def get_selected_directions(self):
+        return self.selected_directions
+
+def select_allowed_gaze_directions():
     app = QApplication(sys.argv)
-    window = FileUpload()
+    window = GazeSelection()
     window.show()
     app.exec_()
-    return window.get_files()
+    return window.get_selected_directions()
