@@ -112,6 +112,5 @@ class StartPage(QWidget):
 def start():
     app = QApplication(sys.argv)
     window = StartPage()
-    window.close_requested.connect(app.quit)
     window.show()
     app.exec_()
