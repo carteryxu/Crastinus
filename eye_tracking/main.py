@@ -8,6 +8,7 @@ import sys
 import os
 from gaze_selection import select_allowed_gaze_directions
 from file_selection import select_files
+from start_page import start
 import time
 
 font = cv2.FONT_HERSHEY_PLAIN
@@ -20,6 +21,8 @@ predictor = dlib.shape_predictor(predictor_path)
 #Pygame + sound + image setup
 pygame.init()
 pygame.mixer.init()
+
+start()
 
 #Load camera
 cap = cv2.VideoCapture(0)
@@ -184,5 +187,4 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
-
 
